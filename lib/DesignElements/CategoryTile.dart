@@ -14,25 +14,26 @@ class CategoryTile extends StatefulWidget{
 class _CategoryTileState extends State<CategoryTile> {
   @override
   Widget build(BuildContext context) {
+
     return GestureDetector(
       child: Card(
-        margin: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+        margin: EdgeInsets.fromLTRB(16.5, 10.0, 10.0, 16.5),
         elevation: 5.0,
-        child: Container(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Container(
-                child: Image(
-                  height: 50.0,
-                  image: AssetImage(widget.category.image),
-                ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Container(
+              child: Image(
+                height: MediaQuery.of(context).size.height * .1,
+                width: MediaQuery.of(context).size.width * .2,
+                image: AssetImage(widget.category.image),
               ),
-              Container(
-                child: Text('${widget.category.name}', style: TextStyle(fontSize: 16.0),),
-              )
-            ],
-          ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Text('${widget.category.name}', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0),),
+            )
+          ],
         ),
       ),
       onTap: (){

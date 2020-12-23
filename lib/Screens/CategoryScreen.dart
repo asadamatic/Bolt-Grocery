@@ -5,6 +5,7 @@ import 'package:boltgrocery/LocalDatabase/LocalDatabase.dart';
 import 'package:boltgrocery/Screens/EditingScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class CategoryScreen extends StatefulWidget{
@@ -22,7 +23,9 @@ class CategoryScreen extends StatefulWidget{
 class CategoryScreenState extends State<CategoryScreen>{
 
   List<GroceryItem> groceryItems = List();
-
+  
+  ScrollController _scrollController = ScrollController(initialScrollOffset: 0.0);
+  
   //String to bool conversion
   bool getStatus(String value) {
 
@@ -30,17 +33,18 @@ class CategoryScreenState extends State<CategoryScreen>{
   }
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-
-  }
-  @override
   Widget build(BuildContext context) {
-    return SafeArea(
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Theme.of(context).appBarTheme.color,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
+          backgroundColor: Theme.of(context).appBarTheme.color,
           iconTheme: IconThemeData(
             color: Colors.white,
           ),
@@ -53,11 +57,19 @@ class CategoryScreenState extends State<CategoryScreen>{
               builder: (context, snapshot) {
 
                 if (snapshot.hasData){
-                  return ListView.builder(
-                    itemCount: snapshot.data.length,
-                    itemBuilder: (context, index){
-                      return GroceryItemCard(key: UniqueKey(), groceryItem: snapshot.data[index], category: widget.category,);
-                    },
+                  if (snapshot.data.length == 0){
+
+                    return Center(child: Text("You don't have any items to show"),);
+                  }
+                  return Container(
+                    margin: const EdgeInsets.only(top: 5.0, bottom: 5.0),
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      itemCount: snapshot.data.length,
+                      itemBuilder: (context, index){
+                        return GroceryItemCard(key: UniqueKey(), groceryItem: snapshot.data[index], category: widget.category,);
+                      },
+                    ),
                   );
                 }
                 return Center(child: CircularProgressIndicator());
@@ -65,19 +77,25 @@ class CategoryScreenState extends State<CategoryScreen>{
           );
         },
       ),
-        floatingActionButton: Builder(
-          builder: (BuildContext newContext){
-            return FloatingActionButton(
-              backgroundColor: Theme.of(context).primaryColor,
-              child: Icon(
-                Icons.add,
-              ),
-              onPressed: () async{
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => EditingScreen(category: widget.category,)));
-              },
-            );
-          },
-        )
+          bottomNavigationBar: Container(
+            height: 50.0,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Expanded(
+                  child:  RaisedButton(
+                    color: Theme.of(context).bottomAppBarColor,
+                    textColor: Colors.white,
+                    child: Text('ADD NEW TASK', style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),),
+                    onPressed: () async{
+                      await Navigator.of(context).push(MaterialPageRoute(builder: (context) => EditingScreen(category: widget.category,)));
+
+                    },
+                  ),
+                )
+              ],
+            ),
+          )
       ),
     );
   }
