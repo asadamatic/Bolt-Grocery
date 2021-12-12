@@ -1,15 +1,15 @@
-import 'package:boltgrocery/DataModels/Category.dart';
-import 'package:boltgrocery/DataModels/GroceryItem.dart';
-import 'package:boltgrocery/LocalDatabase/LocalDatabase.dart';
-import 'package:boltgrocery/Screens/EditingScreen.dart';
+import 'package:boltgrocery/DataModels/category.dart';
+import 'package:boltgrocery/DataModels/grocery_item.dart';
+import 'package:boltgrocery/Screens/editing_screen.dart';
+import 'package:boltgrocery/controllers/home_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:get/get.dart';
 
 class GroceryItemCard extends StatefulWidget{
 
-  final GroceryItem groceryItem;
-  final Category category;
-  final Key key;
+  final GroceryItem? groceryItem;
+  final Category? category;
+  final Key? key;
   GroceryItemCard({this.key, this.groceryItem, this.category});
 
   @override
@@ -20,25 +20,24 @@ class GroceryItemCard extends StatefulWidget{
 
 class GroceryItemCardState extends State<GroceryItemCard> {
 
+  GroceriesController _homeController = Get.find();
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 8.0,
       margin: EdgeInsets.fromLTRB(12.0, 2.5, 12.0, 2.5),
       shape: ContinuousRectangleBorder(
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(20.0),
       ),
       child: Row(
         children: <Widget>[
           Checkbox(
             activeColor: Theme.of(context).primaryColor,
-            value: widget.groceryItem.status,
+            value: widget.groceryItem!.status,
             onChanged: (newValue) async {
               setState(() {
-                widget.groceryItem.status = newValue;
+                widget.groceryItem!.status = newValue;
               });
-              await Provider.of<LocalDatabase>(context, listen: false).update(
-                  widget.groceryItem);
             },
           ),
           Expanded(
@@ -49,7 +48,7 @@ class GroceryItemCardState extends State<GroceryItemCard> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(8.0, 12.0, 8.0, 8.0),
                   child: Text(
-                    '${widget.groceryItem.name}', overflow: TextOverflow.ellipsis,
+                    '${widget.groceryItem!.name}', overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.headline6,),
                 ),
                 Padding(
@@ -57,12 +56,12 @@ class GroceryItemCardState extends State<GroceryItemCard> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      Flexible(child: Text('${widget.groceryItem.quantity} ',
+                      Flexible(child: Text('${widget.groceryItem!.quantity} ',
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.subtitle2),),
                       Flexible(child: Text(
-                        widget.groceryItem.unit == 'Unit' || widget.groceryItem.unit == 'None' ? '' : '${widget
-                            .groceryItem.unit}', overflow: TextOverflow.ellipsis,
+                        widget.groceryItem!.unit == 'Unit' || widget.groceryItem!.unit == 'None' ? '' : '${widget
+                            .groceryItem!.unit}', overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.subtitle2)),
                     ],
                   ),
@@ -96,16 +95,14 @@ class GroceryItemCardState extends State<GroceryItemCard> {
   void popupCallback(String value) async{
     switch (value) {
       case 'Edit':
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => EditingScreen(
-              groceryItem: widget.groceryItem,
-              category: widget.category,)));
+        Get.to(() =>  EditingScreen(
+          groceryItem: widget.groceryItem,
+          category: widget.category,));
 
         break;
 
       case 'Delete':
-        await Provider.of<LocalDatabase>(context, listen: false)
-            .delete(widget.groceryItem);
+          _homeController.deleteItem(widget.groceryItem);
         break;
     }
   }
